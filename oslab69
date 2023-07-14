@@ -1,0 +1,184 @@
+//producerr
+#include <stdio.h>
+#include <stdlib.h>
+
+int mutex = 1, full = 0, empty = 3, x = 0;
+
+int main() {
+    int n;
+    void producer();
+    void consumer();
+    int wait(int);
+    int signal(int);
+
+    printf("\n1. Producer\n2. Consumer\n3. Exit");
+    while (1) {
+        printf("\nEnter your choice: ");
+        scanf("%d", &n);
+        switch (n) {
+            case 1:
+                if ((mutex == 1) && (empty != 0))
+                    producer();
+                else
+                    printf("Buffer is full!!");
+                break;
+            case 2:
+                if ((mutex == 1) && (full != 0))
+                    consumer();
+                else
+                    printf("Buffer is empty!!");
+                break;
+            case 3:
+                exit(0);
+                break;
+        }
+    }
+    return 0;
+}
+
+int wait(int s) {
+    return (--s);
+}
+
+int signal(int s) {
+    return (++s);
+}
+
+void producer() {
+    mutex = wait(mutex);
+    full = signal(full);
+    empty = wait(empty);
+    x++;
+    printf("\nProducer produces the item %d", x);
+    mutex = signal(mutex);
+}
+
+void consumer() {
+    mutex = wait(mutex);
+    full = wait(full);
+    empty = signal(empty);
+    printf("\nConsumer consumes item %d", x);
+    x--;
+    mutex = signal(mutex);
+}
+-------------------------------------------------------------------------
+//paging
+#include<stdio.h>
+#include<conio.h>
+main()
+{
+int ms, ps, nop, np, rempages, i, j, x, y, pa, offset; int s[10], fno[10][20];
+printf("\nEnter the memory size -- ");
+scanf("%d",&ms);
+printf("\nEnter the page size -- ");
+scanf("%d",&ps);
+nop = ms/ps;
+printf("\nThe no. of pages available in memory are -- %d ",nop);
+printf("\nEnter number of processes -- ");
+scanf("%d",&np);
+rempages = nop; for(i=1;i<=np;i++)
+{
+printf("\nEnter no. of pages required for p[%d]-- ",i);
+scanf("%d",&s[i]);
+if(s[i] >rempages)
+{
+printf("\nMemory is Full");
+break;
+}
+rempages = rempages - s[i];
+printf("\nEnter pagetable for p[%d] --- ",i);
+for(j=0;j<s[i];j++)
+scanf("%d",&fno[i][j]);
+}
+printf("\nEnter Logical Address to find Physical Address ");
+printf("\nEnter process no. and pagenumber and offset -- ");
+scanf("%d %d %d",&x,&y, &offset);
+if(x>np || y>=s[i] || offset>=ps)
+printf("\nInvalid Process or Page Number or offset");
+else
+{
+pa=fno[x][y]*ps+offset;
+printf("\nThe Physical Address is -- %d",pa);
+}
+getch();
+}
+-----------------------------------------------------------------------
+//seg
+#include <stdio.h>
+#include <stdlib.h>
+
+struct list {
+    int seg;
+    int base;
+    int limit;
+    struct list* next;
+} *p;
+
+void insert(struct list* q, int base, int limit, int seg) {
+    if (p == NULL) {
+        p = (struct list*)malloc(sizeof(struct list));
+        p->limit = limit;
+        p->base = base;
+        p->seg = seg;
+        p->next = NULL;
+    } else {
+        while (q->next != NULL) {
+            q = q->next;
+        }
+        q->next = (struct list*)malloc(sizeof(struct list));
+        q->next->limit = limit;
+        q->next->base = base;
+        q->next->seg = seg;
+        q->next->next = NULL;
+    }
+}
+
+int find(struct list* q, int seg) {
+    while (q->seg != seg) {
+        q = q->next;
+    }
+    return q->limit;
+}
+
+int search(struct list* q, int seg) {
+    while (q->seg != seg) {
+        q = q->next;
+    }
+    return q->base;
+}
+
+int main() {
+    p = NULL;
+    int seg, offset, limit, base, c, s, physical;
+    printf("Enter segment table\n");
+    printf("Enter -1 as segment value for termination\n");
+
+    do {
+        printf("Enter segment number: ");
+        scanf("%d", &seg);
+        if (seg != -1) {
+            printf("Enter base value: ");
+            scanf("%d", &base);
+            printf("Enter value for limit: ");
+            scanf("%d", &limit);
+            insert(p, base, limit, seg);
+        }
+    } while (seg != -1);
+
+    printf("Enter offset: ");
+    scanf("%d", &offset);
+    printf("Enter segment number: ");
+    scanf("%d", &seg);
+    c = find(p, seg);
+    s = search(p, seg);
+
+    if (offset < c) {
+        physical = s + offset;
+        printf("Address in physical memory: %d\n", physical);
+    } else {
+        printf("Error: Offset exceeds segment limit.\n");
+    }
+
+    return 0;
+}
+
